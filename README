@@ -1,8 +1,11 @@
 
 Mongoose D bindings / wrapper.
 
-These are bindings and wrapper function and classes to use Mongoose from 
+These are bindings and wrapper functions and classes to use Mongoose from 
 the D programming language.
+This is still a work in progress, not everthing has been thoroughly tested.
+
+An example is available under the examples/ directory.
 
 
 

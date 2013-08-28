@@ -417,16 +417,6 @@ extern (C) {
 
         return svr.onUpload (new Connection (con), fileName.to!string);
     }
-
-    int d_http_error (mg_connection* con, int status) {
-        auto cxn = new Connection (con, true);
-        auto svr = cast (Server) cxn.userData;
-
-        if (null == svr.onHttpError) 
-            return status;
-        
-        return svr.onHttpError (new Connection (con), status);
-    }
 }
 
 class Router {
@@ -521,7 +511,8 @@ public:
             open_file         = & d_open_file;
             init_lua          = & d_init_lua;
             upload            = & d_upload;
-            http_error        = & d_http_error;
+            thread_start      = null;
+            thread_stop       = null;
         }
 
         context = mg_start (&callbacks, cast (void *) this, options.toMgStartOptions);

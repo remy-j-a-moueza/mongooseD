@@ -24,6 +24,16 @@ extern (C):
 
 alias void* function (void*) mg_thread_func_t;
 
+enum 
+{
+	WEBSOCKET_OPCODE_CONTINUATION = 0,
+	WEBSOCKET_OPCODE_TEXT = 1,
+	WEBSOCKET_OPCODE_BINARY = 2,
+	WEBSOCKET_OPCODE_CONNECTION_CLOSE = 8,
+	WEBSOCKET_OPCODE_PING = 9,
+	WEBSOCKET_OPCODE_PONG = 10
+}
+
 struct mg_context
 {
 }
@@ -43,6 +53,7 @@ struct mg_request_info
 	int remote_port;
 	int is_ssl;
 	void* user_data;
+	void* conn_data;
 	int num_headers;
 
     struct mg_header {
@@ -54,19 +65,19 @@ struct mg_request_info
 
 struct mg_callbacks
 {
-	int           function (mg_connection*) begin_request;
-	void          function (const(mg_connection)*, int) end_request;
-	int           function (const(mg_connection)*, const(char)*) log_message;
-	int           function (void*, void*) init_ssl;
-	int           function (const(mg_connection)*) websocket_connect;
-	void          function (mg_connection*) websocket_ready;
-	int           function (mg_connection*, int, char*, size_t) websocket_data;
-	const(char)*  function (const(mg_connection)*, const(char)*, size_t*) open_file;
-	void          function (mg_connection*, void*) init_lua;
-	void          function (mg_connection*, const(char)*) upload;
-	int           function (mg_connection*, int) http_error;
+	int function (mg_connection*) begin_request;
+	void function (const(mg_connection)*, int) end_request;
+	int function (const(mg_connection)*, const(char)*) log_message;
+	int function (void*, void*) init_ssl;
+	int function (const(mg_connection)*) websocket_connect;
+	void function (mg_connection*) websocket_ready;
+	int function (mg_connection*, int, char*, size_t) websocket_data;
+	const(char)* function (const(mg_connection)*, const(char)*, size_t*) open_file;
+	void function (mg_connection*, void*) init_lua;
+	void function (mg_connection*, const(char)*) upload;
+	void function (void*, void**) thread_start;
+	void function (void*, void**) thread_stop;
 }
-
 
 mg_context* mg_start (const(mg_callbacks)* callbacks, void* user_data, const(char*)* configuration_options);
 void mg_stop (mg_context*);
@@ -75,6 +86,7 @@ const(char*)* mg_get_valid_option_names ();
 int mg_modify_passwords_file (const(char)* passwords_file_name, const(char)* domain, const(char)* user, const(char)* password);
 mg_request_info* mg_get_request_info (mg_connection*);
 int mg_write (mg_connection*, const(void)* buf, size_t len);
+int mg_websocket_write (mg_connection* conn, int opcode, const(char)* data, size_t data_len);
 int mg_printf (mg_connection*, const(char)* fmt, ...);
 void mg_send_file (mg_connection* conn, const(char)* path);
 int mg_read (mg_connection*, void* buf, size_t len);
